@@ -30,7 +30,7 @@
         const token = await getIdToken(userCredential.user);
 
         // Buscar dados do Firestore via API protegida
-        const res = await fetch("https://recebedor-de-forms-f9zzujsur-devoluapps-projects.vercel.app/api/responses", {
+        const res = await fetch("https://recebedor-de-forms.vercel.app/api/responses", {
           headers: {
             "Authorization": "Bearer " + token
           }
