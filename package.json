@@ -1,0 +1,9 @@
+{
+  "name": "recebedor-de-forms",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
