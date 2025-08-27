@@ -18,6 +18,14 @@ export default async function handler(req, res) {
     return res.status(405).send("Method Not Allowed");
   }
 
+  // pega os dados enviados via x-www-form-urlencoded
+  const { nome, email, ...rest } = req.body;
+
+  // valida campos obrigatórios
+  if (!nome || !email) {
+    return res.status(400).json({ error: "Campos 'nome' e 'email' são obrigatórios" });
+  }
+
   try {
     let data = {};
     if (req.headers["content-type"]?.includes("application/x-www-form-urlencoded")) {
