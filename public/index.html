@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Exportar respostas</title>
+</head>
+<body>
+  <button id="downloadCsv">Baixar CSV</button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, getIdToken } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+    // Config do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDHO4mGNj0NoRQvb5wHV7vc-8X_3XmtCj0",
+      authDomain: "recebedor-de-forms.firebaseapp.com",
+      projectId: "recebedor-de-forms"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const provider = new GoogleAuthProvider();
+
+    document.getElementById("downloadCsv").addEventListener("click", async () => {
+      try {
+        // Login Google
+        const userCredential = await signInWithPopup(auth, provider);
+        const token = await getIdToken(userCredential.user);
+
+        // Buscar dados do Firestore via API protegida
+        const res = await fetch("https://recebedor-de-forms-f9zzujsur-devoluapps-projects.vercel.app/api/responses", {
+          headers: {
+            "Authorization": "Bearer " + token
+          }
+        });
+        const data = await res.json();
+
+        if (!data.length) {
+          alert("Nenhuma resposta encontrada.");
+          return;
+        }
+
+        // Criar CSV
+        const keys = Object.keys(data[0]); // Assume sempre mesma estrutura
+        const csvRows = [
+          keys.join(","), // cabeçalho
+          ...data.map(row => keys.map(k => `"${(row[k] ?? "").toString().replace(/"/g, '""')}"`).join(","))
+        ];
+
+        const csvString = csvRows.join("\n");
+
+        // Forçar download
+        const blob = new Blob([csvString], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "respostas.csv";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao gerar CSV: " + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
